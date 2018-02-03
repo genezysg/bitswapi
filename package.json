@@ -19,6 +19,7 @@
   "homepage": "https://github.com/genezysg/dsfbit#readme",
   "dependencies": {
     "config": "^1.29.2",
+    "mongoose": "^5.0.3",
     "restify": "^6.3.4"
   },
   "devDependencies": {
