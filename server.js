@@ -1,5 +1,7 @@
 var restify = require('restify');
 var config = require('config');
+// Para uso depois var assert= require('assert');
+var planetResource = require('./resources/planets')
 
 const server = restify.createServer({
     name:'dsfbit',
@@ -11,14 +13,12 @@ server.use(restify.plugins.queryParser());
 server.use(restify.plugins.bodyParser());
 
 
-function respond(req, res, next) {
-  res.send('hello ' + req.params.name);
-  next()
-}
 
-server.get('/hello/:name', respond);
-server.head('/hello/:name', respond);
+server.get('/planets/',planetResource.GetPlanets);
+server.post('/planets/',planetResource.PostPlanet);
+
+
 
 server.listen(config.get('port'), function() {
-  console.log('%s listening at %s', server.name, server.url);
+// Removed  console.log('%s listening at %s', server.name, server.url);
 });
