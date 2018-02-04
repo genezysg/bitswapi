@@ -1,7 +1,10 @@
 var restify = require('restify');
 var config = require('config');
-// Para uso depois var assert= require('assert');
+var mongoose = require('mongoose')
 var planetResource = require('./resources/planets')
+
+mongoose.connect(`mongodb://localhost/${config.db}`);
+
 
 const server = restify.createServer({
     name:'dsfbit',
@@ -22,3 +25,5 @@ server.post('/planets/',planetResource.PostPlanet);
 server.listen(config.get('port'), function() {
 // Removed  console.log('%s listening at %s', server.name, server.url);
 });
+
+module.exports=server;

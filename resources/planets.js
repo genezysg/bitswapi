@@ -1,7 +1,6 @@
-const mongoose = require('../db/mongoose')
-const Planet = mongoose.model.Planet;
+const Planet = require('../models/planet.js');
 
-module.exports.GetPlanets = (req,res,next) => {
+exports.GetPlanets = (req,res,next) => {
     var query=Planet.find({})
     query.exec((err,planets)=>{
         if (err){
@@ -13,8 +12,8 @@ module.exports.GetPlanets = (req,res,next) => {
     })
 }
 
-module.exports.PostPlanet = (req,res,next) =>{
-    let np = new Planet({name:req.body.name});
+exports.PostPlanet = (req,res,next) =>{
+    let np = new Planet(req.body);
     np.save((err,saved) => {
         if (err) res.send(500,err)
         res.send(201,saved)
