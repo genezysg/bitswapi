@@ -6,17 +6,23 @@ const chai = require("chai"),
 const swapi=require("./swapi")
 
 it('should return movies',(done)=>{
-	swapi.getMoviesByPlanet("Alderaan",(err,res)=>{
-		//onsole.log(res)
+	swapi.getPlanet("Alderaan",(err,res)=>{
+		expect(res).to.deep.include({name:"Alderaan"})
+		done()
+	})
+	
+})
 
-		expect(res.results[0]).to.deep.include({name:"Alderaan"})
+it('should return no movies',(done)=>{
+	swapi.getPlanet("ria",(err,res)=>{
+		expect(res).to.be.null
 		done()
 	})
 	
 })
 
 it('should return the Movie = A new Hope',(done)=>{
-   swapi.getMovie("https://swapi.co/api/films/1",(err,res)=>{
+   swapi.getMovie("1",(err,res)=>{
 		expect(res).to.deep.include({title:'A New Hope'})
 		done()
 	})
