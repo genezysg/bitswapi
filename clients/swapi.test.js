@@ -5,25 +5,17 @@ const chai = require("chai"),
 
 const swapi=require("./swapi")
 
-it('should return movies',(done)=>{
-	swapi.getPlanet("Alderaan",(err,res)=>{
-		expect(res).to.deep.include({name:"Alderaan"})
+
+it('should return 2 appearances',(done)=>{
+	swapi.getAppearances("Alderaan",(err,res)=>{
+		expect(res).to.be.equal(2)
 		done()
 	})
-	
 })
 
-it('should return no movies',(done)=>{
-	swapi.getPlanet("ria",(err,res)=>{
-		expect(res).to.be.null
-		done()
-	})
-	
-})
-
-it('should return the Movie = A new Hope',(done)=>{
-   swapi.getMovie("1",(err,res)=>{
-		expect(res).to.deep.include({title:'A New Hope'})
+it('should return 0 appearances',(done)=>{
+	swapi.getAppearances('ooince',(err,res)=>{
+		expect(res).to.be.equal(0)
 		done()
 	})
 })
