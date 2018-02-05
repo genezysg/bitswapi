@@ -8,7 +8,8 @@ const swapi=require("./swapi")
 it('should return movies',(done)=>{
 	swapi.getMoviesByPlanet("Alderaan",(err,res)=>{
 		//onsole.log(res)
-		expect(res).to.deep.include({name:"Alderaan"})
+
+		expect(res.results[0]).to.deep.include({name:"Alderaan"})
 		done()
 	})
 	
