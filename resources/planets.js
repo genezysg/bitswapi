@@ -1,7 +1,7 @@
 const Planet = require('../models/planet.js');
 
 exports.GetPlanets = (req,res,next) => {
-    var query=Planet.find({})
+    var query=Planet.find({}).populate({path:'movies',populate:{path:'movie'}})
     query.exec((err,planets)=>{
         if (err){
             res.send(500,err)
