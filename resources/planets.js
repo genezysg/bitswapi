@@ -12,7 +12,13 @@ const handleError= (error,res) => {
 
 
 exports.list = (req,res,next) => {
-    var query=Planet.find({})
+    var query=null;
+
+    if (req.params.id) {
+        query=Planet.findById(req.params.id)
+    } else {
+        query=Planet.find(req.query)
+    }
 
     query.exec((err,planets) => {
         if (err) {
