@@ -36,7 +36,7 @@ exports.PostPlanet = (req,res,next) => {
 
             return;
         }
-        res.send(statuscode.Ok,saved)
+        res.send(statuscode.CREATED,saved)
         next()
     })
 }
