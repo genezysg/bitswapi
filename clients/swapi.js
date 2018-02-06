@@ -12,7 +12,8 @@ exports.getAppearances=(planet,callback) => {
         },
         (err,res) => {
         const json=JSON.parse(res.body)
-        let found=null;
+        let found=0
+        const zero=0
 
         found=json.results.find((element) => {
             if (element.name===planet) {
@@ -20,7 +21,7 @@ exports.getAppearances=(planet,callback) => {
             }
         })
         if (found===null) {
-            callback(err,0)
+            callback(err,zero)
 
             return;
         }
