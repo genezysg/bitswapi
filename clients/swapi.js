@@ -20,7 +20,7 @@ exports.getAppearances=(planet,callback) => {
                 return element;
             }
         })
-        if (found===null) {
+        if (found===undefined) {
             callback(err,zero)
 
             return;
