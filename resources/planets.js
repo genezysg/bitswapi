@@ -11,7 +11,7 @@ const handleError= (error,res) => {
 }
 
 
-exports.GetPlanets = (req,res,next) => {
+exports.list = (req,res,next) => {
     var query=Planet.find({})
 
     query.exec((err,planets) => {
@@ -26,7 +26,7 @@ exports.GetPlanets = (req,res,next) => {
     })
 }
 
-exports.PostPlanet = (req,res,next) => {
+exports.post = (req,res,next) => {
     const np = new Planet(req.body);
 
     np.save((err,saved) => {
@@ -41,7 +41,7 @@ exports.PostPlanet = (req,res,next) => {
     })
 }
 
-exports.UpdatePlanet = (req,res,next) => {
+exports.update = (req,res,next) => {
         Planet.findById(req.params.id,(err,planet) => {
             if (err) {
                 handleError(err,res)
@@ -61,4 +61,16 @@ exports.UpdatePlanet = (req,res,next) => {
             })
         })
     next()
+}
+
+exports.delete = (req,res,next) => {
+    Planet.remove(req.params.id,(err) => {
+        if (err) {
+            res.send(statuscode.NOT_FOUND)
+
+            return next()
+        }
+        res.send(statuscode.NO_CONTENT)
+        next()
+    })
 }

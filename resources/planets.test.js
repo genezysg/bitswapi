@@ -27,80 +27,101 @@ const createdPlanet = new Promise((resolve,reject) => {
 
 chai.use(chaiHttp)
 
-it('should return a list of planets in a json format',(done) => {
-    chai.request(server).get('/planets')
-    .end((err,res) => {
-        if (err) {
-            expect.fail(err,'error')
-        }
-        expect(res).to.have.status(statuscode.OK);
-        expect(res).to.be.json;
-        done()
+describe('Planets API', () => {
+
+    it('should return a list of planets in a json format',(done) => {
+        chai.request(server).get('/planets')
+        .end((err,res) => {
+            if (err) {
+                expect.fail(err,'error')
+            }
+            expect(res).to.have.status(statuscode.OK);
+            expect(res).to.be.json;
+            done()
+        })
     })
-})
 
 
 
-it('should insert a new planet',(done) => {
-    chai.request(server).post('/planets')
-    .send({
-        name:'Alderaan',
-        climate:'desert',
-        terrain:'mountais'
-    })
-    .then((res) => {
-        expect(res).to.have.status(statuscode.CREATED);
-        expect(res).to.be.json;
-        done()
-    })
-    .catch((err) => {
-        if (err) {
-            throw err
-        }
-        expect.fail(err)
-        expect(res).to.have.status(statuscode.OK);
-        expect(res).to.be.json;
-        done()
-    })
-})
-
-
-
-it('should update a planet',(done) => {
-
-    chai.request(server).post('/planets/5a78be54d5ad6a2846b572fb')
-    .send({
-        name:'Tatooine',
-        climate:'watery',
-        terrain:'mountais'
-    })
-    .then((res) => {
-        expect(res.body).to.deep.include({
-            climate:'watery',
+    it('should insert a new planet',(done) => {
+        chai.request(server).post('/planets')
+        .send({
+            name:'Alderaan',
+            climate:'desert',
             terrain:'mountais'
-        });
-        done()
-    })
-    .catch((err) => {
-        expect.fail(err)
-        done()
-    })
-})
-
-
-describe('when an id is sent to be deleted',() => {
-    it('should delete the planet',(done) => {
-        createdPlanet.then((ok) => {
-        chai.request(server).delete(`/planets/${ok}`)
+        })
         .then((res) => {
-            expect(res).to.have.status(statuscode.NO_CONTENT)
+            expect(res).to.have.status(statuscode.CREATED);
+            expect(res).to.be.json;
             done()
         })
         .catch((err) => {
-            expect(err).to.have.status(statuscode.NOT_FOUND)
+            if (err) {
+                throw err
+            }
+            expect.fail(err)
+            expect(res).to.have.status(statuscode.OK);
+            expect(res).to.be.json;
             done()
         })
     })
 
+
+
+    it('should update a planet',(done) => {
+
+        chai.request(server).post('/planets/5a78be54d5ad6a2846b572fb')
+        .send({
+            name:'Tatooine',
+            climate:'watery',
+            terrain:'mountais'
+        })
+        .then((res) => {
+            expect(res.body).to.deep.include({
+                climate:'watery',
+                terrain:'mountais'
+            });
+            done()
+        })
+        .catch((err) => {
+            expect.fail(err)
+            done()
+        })
     })
+
+
+
+    createdPlanet.then((planetId) => {
+            describe('#delete - when an id is sent to be deleted',() => {
+            it('should delete the planet',(done) => {
+                chai.request(server).delete(`/planets/${planetId}`)
+                .then((res) => {
+                    expect(res).to.have.status(statuscode.NO_CONTENT)
+                    done()
+                })
+                .catch((err) => {
+                    expect(err).to.have.status(statuscode.NOT_FOUND)
+                    done()
+                })
+            })
+        })
+    }).catch((err) => {
+        expect.fail(err)
+        done()
+    })
+
+    describe('#delete - when an inexistent id is sent to be deleted', () => {
+        it('should return 404 not found',(done) => {
+            chai.request(server).delete('/planets/dontexist')
+            .then((res) => {
+                expect.fail(res)
+                done()
+            })
+            .catch((err) => {
+                expect(err).to.have.status(statuscode.NOT_FOUND)
+                done()
+            })
+        })
+    })
+
 })
