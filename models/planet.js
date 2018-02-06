@@ -1,14 +1,13 @@
-const mongoose=require('mongoose')
-const Movie = require('./movie')
+const mongoose=require('mongoose');
 
 var planetSchema = new mongoose.Schema({
-  name:  String,
   climate: String,
+  movieAppearances: Number,
+  name:  String,
   terrain: String,
-  updateAt: Date,
-  movies:[{type:mongoose.Schema.Types.ObjectId,ref:"Movie"}]
+  updateAt: Date
 });
 
 
-module.exports = mongoose.model('Planet',planetSchema)
 
+module.exports = mongoose.model('Planet',planetSchema)
