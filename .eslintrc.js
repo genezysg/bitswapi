@@ -36,7 +36,7 @@ module.exports = {
         "consistent-this": "error",
         "curly": "error",
         "default-case": "error",
-        "dot-location": "error",
+        "dot-location": "off",
         "dot-notation": "error",
         "eol-last": "error",
         "eqeqeq": "error",
@@ -217,10 +217,7 @@ module.exports = {
             "last"
         ],
         "sort-imports": "error",
-        "sort-keys": [
-            "error",
-            "asc"
-        ],
+        "sort-keys": 'off',
         "sort-vars": "error",
         "space-before-blocks": "error",
         "space-before-function-paren": "off",
