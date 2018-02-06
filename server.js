@@ -19,6 +19,7 @@ server.use(restify.plugins.bodyParser());
 
 server.get('/planets/',planetResource.GetPlanets);
 server.post('/planets/',planetResource.PostPlanet);
+server.post('/planets/:id',planetResource.UpdatePlanet);
 
 
 
