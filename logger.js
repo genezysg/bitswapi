@@ -2,6 +2,7 @@ const winston=require('winston')
 const config=require('config')
 const File=winston.transports.File
 const Console=winston.transports.Console
+const uuid=require('uuid/v4')
 
 
 
@@ -16,4 +17,11 @@ const trconsole = new Console({
                                 colorize:true
                             });
 
-module.exports=new winston.Logger({transports:[trconsole,transportFile]});
+logger = new winston.Logger({transports:[trconsole,transportFile]});
+
+logger.trace = () => {
+    traceid={tid:uuid()}
+
+    return traceid
+}
+module.exports=logger
