@@ -23,16 +23,16 @@ planetSchema.methods.getAppearances=function () {
 
     swapi.getAppearances(that.name,(err,appearances) => {
         if (err) {
-            logger.error(tid,'Cant get appearances of a planet',err,that)
+            logger.error(tid,'Cant get appearances of a planet',err,that.name)
 
             return;
         }
         if (that.movieAppearances !== appearances) {
-            logger.info(tid,'Movie appearances found and changed',that,appearances)
+            logger.info(tid,'Movie appearances found and changed','before',that.movieAppearances,'new',appearances)
             that.movieAppearances=appearances
             that.save()
         }
-        logger.info(tid,'Not changed',that,appearances)
+        logger.info(tid,'Not saved')
     })
 }
 

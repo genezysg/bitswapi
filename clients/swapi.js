@@ -1,8 +1,10 @@
 const request = require('request')
+const logger = require('../logger')
 
 
 exports.getAppearances=(planet,callback) => {
     const param={search:planet}
+    const traceid=logger.trace()
 
     request.get(
         {
@@ -17,14 +19,17 @@ exports.getAppearances=(planet,callback) => {
 
         found=json.results.find((element) => {
             if (element.name===planet) {
+                logger.info(traceid,'swapi.getAppearances - found planet',planet)
+
                 return element;
             }
         })
         if (found===undefined) {
-            callback(err,zero)
+            logger.info(traceid,'swapi.getAppearances - planet not found',planet)
 
-            return;
+            return callback(err,zero);
         }
+        logger.info(traceid,'swapi.getAppearances - found appearances',found.films.length)
         callback(err,found.films.length)
     }
     )
