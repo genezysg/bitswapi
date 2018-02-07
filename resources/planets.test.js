@@ -31,12 +31,13 @@ describe('Planets API', () => {
 
     it('should return a list of planets in a json format',(done) => {
         chai.request(server).get('/planets')
-        .end((err,res) => {
-            if (err) {
-                expect.fail(err,'error')
-            }
+        .then((res) => {
             expect(res).to.have.status(statuscode.OK);
-            expect(res).to.be.json;
+            expect(res.body).to.be.an('array')
+            done()
+        })
+        .catch((err) => {
+            expect.fail(err)
             done()
         })
     })
@@ -52,16 +53,11 @@ describe('Planets API', () => {
         })
         .then((res) => {
             expect(res).to.have.status(statuscode.CREATED);
-            expect(res).to.be.json;
+            expect(res.body).to.deep.include({name:'Alderaan'})
             done()
         })
         .catch((err) => {
-            if (err) {
-                throw err
-            }
             expect.fail(err)
-            expect(res).to.have.status(statuscode.OK);
-            expect(res).to.be.json;
             done()
         })
     })
@@ -100,7 +96,7 @@ describe('Planets API', () => {
                     done()
                 })
                 .catch((err) => {
-                    expect(err).to.have.status(statuscode.NOT_FOUND)
+                    expect.fail(err,null,err)
                     done()
                 })
             })
