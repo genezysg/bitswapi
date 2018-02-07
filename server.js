@@ -27,7 +27,9 @@ server.del('/planets/:id',planetResource.delete);
 
 
 server.listen(config.get('port'), function() {
-    logger.info(`server: server listening on ${config.get('port')}`)
+    const traceid = logger.trace()
+
+    logger.info(traceid,`:server listening on ${config.get('port')}`)
 });
 
 module.exports=server;
