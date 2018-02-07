@@ -13,15 +13,26 @@ const pln=new Planet({
                         climate:'deserto',
                         terrain:'areia'
                     })
+const pln2=new Planet({
+                        name:'Tatooine',
+                        climate:'deserto',
+                        terrain:'areia'
+                    })
 
-const createdPlanet = new Promise((resolve,reject) => {
-    pln.save((err,saved) => {
-        if (err) {
-            reject(err)
-        }
-        resolve(saved.id)
+const createPlanet= (planet) => {
+    var cp = null;
+
+    cp=new Promise((resolve,reject) => {
+        planet.save((err,saved) => {
+            if (err) {
+                reject(err)
+            }
+            resolve(saved.id)
+        })
     })
-})
+
+    return cp;
+}
 
 
 
@@ -42,6 +53,28 @@ describe('Planets API', () => {
         })
     })
 
+createPlanet(pln).then((planetId) => {
+        describe('#get - when an id is sent via url',() => {
+        it('should return a planet by id',(done) => {
+
+        chai.request(server).get(`/planets/${planetId}`)
+        .then((res) => {
+            expect(res).to.have.status(statuscode.OK);
+            expect(res.body).to.be.an('object')
+            expect(res.body).to.deep.include({name:'Alderaan'})
+            done()
+        })
+        .catch((err) => {
+            expect.fail(err,null,err)
+            done()
+        })
+        })
+    })
+    })
+    .catch((err) => {
+        expect.fail(err,null,err)
+        done()
+})
 
 
     it('should insert a new planet',(done) => {
@@ -87,7 +120,7 @@ describe('Planets API', () => {
 
 
 
-    createdPlanet.then((planetId) => {
+    createPlanet(pln2).then((planetId) => {
             describe('#delete - when an id is sent to be deleted',() => {
             it('should delete the planet',(done) => {
                 chai.request(server).delete(`/planets/${planetId}`)
@@ -101,8 +134,9 @@ describe('Planets API', () => {
                 })
             })
         })
-    }).catch((err) => {
-        expect.fail(err)
+    })
+    .catch((err) => {
+        expect.fail(err,null,err)
         done()
     })
 
@@ -119,5 +153,4 @@ describe('Planets API', () => {
             })
         })
     })
-
 })

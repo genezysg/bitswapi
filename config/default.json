@@ -1,4 +1,9 @@
 {
     "port":8000,
-    "db":"local"
+    "db":"local",
+    "log_level":{
+            "file":"info",
+            "console":"silly"
+        },
+    "log_file":"server.log"
 }
