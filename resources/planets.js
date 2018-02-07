@@ -33,7 +33,7 @@ exports.list = (req,res,next) => {
 exports.get = (req,res,next) => {
     const traceid=logger.trace();
 
-    logger.info(traceid,'resources/planets.get -find',req.param.id)
+    logger.info(traceid,'resources/planets.get -find',req.params.id)
     query=Planet.findById(req.params.id)
     query.exec((err,planets) => {
         if (err) {
@@ -43,8 +43,8 @@ exports.get = (req,res,next) => {
             return next();
         }
         planets.getAppearances()
-        logger.info(traceid,'resources/planets.get -found',planets)
         res.send(planets)
+        logger.info(traceid,'resources/planets.get -found',planets)
         next()
     })
 }
