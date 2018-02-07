@@ -8,7 +8,7 @@ const uuid=require('uuid/v4')
 
 
 const transportFile=new File({
-                            filename:'server.log',
+                            filename:config.get('log_file'),
                             level:config.get('log_level.file'),
                             colorize: true
                             })
@@ -20,8 +20,8 @@ const trconsole = new Console({
 logger = new winston.Logger({transports:[trconsole,transportFile]});
 
 logger.trace = () => {
-    traceid={tid:uuid()}
+    trace={tid:uuid()}
 
-    return traceid
+    return trace
 }
 module.exports=logger
