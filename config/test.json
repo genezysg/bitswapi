@@ -1,4 +1,8 @@
 {
 	"port":8001,
-	"db":"test"
+	"db":"test",
+    "log_level":{
+            "file":"debug",
+            "console":"debug"
+        }
 }
