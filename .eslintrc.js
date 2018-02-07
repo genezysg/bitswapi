@@ -13,7 +13,7 @@ module.exports = {
         "array-bracket-newline": "error",
         "array-bracket-spacing": "error",
         "array-callback-return": "off",
-        "array-element-newline": "error",
+        "array-element-newline": ["error","never"],
         "arrow-body-style": "error",
         "arrow-parens": "error",
         "arrow-spacing": "error",
