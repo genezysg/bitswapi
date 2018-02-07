@@ -4,5 +4,6 @@
     "log_level":{
             "file":"info",
             "console":"silly"
-        }
+        },
+    "log_file":"server.log"
 }

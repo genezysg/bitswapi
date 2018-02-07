@@ -3,6 +3,8 @@
 	"db":"test",
     "log_level":{
             "file":"debug",
-            "console":"debug"
-        }
+            "console":"error"
+        },
+    "log_file":"tests.log"
+
 }
