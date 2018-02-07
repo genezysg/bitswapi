@@ -40,12 +40,20 @@ exports.get = (req,res,next) => {
             handleError(err,res)
             logger.error(traceid,'resources/planets.get',err)
 
-            return next();
+            return next()
         }
-        planets.getAppearances()
-        res.send(planets)
-        logger.info(traceid,'resources/planets.get -found',planets)
-        next()
+        if (planets===null) {
+            res.send(statuscode.NOT_FOUND)
+            logger.info(traceid,'resources/planets.get -not found',req.params.id)
+
+            return next()
+        }
+            planets.getAppearances()
+            res.send(planets)
+            logger.info(traceid,'resources/planets.get -found',planets)
+
+            return next()
+
     })
 }
 
