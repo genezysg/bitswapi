@@ -2,7 +2,7 @@
     "port":8000,
     "db":"local",
     "log_level":{
-            "file":"debug",
-            "console":"debug"
+            "file":"info",
+            "console":"silly"
         }
 }
