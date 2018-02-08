@@ -1,9 +1,11 @@
 const request = require('request')
 const logger = require('../logger')
+const NodeCache = require('node-cache')
+const mainCache = new NodeCache({stdTTL:600});
 
-var findPlanet= function (planet) {
+var findPlanet= function (planetName) {
     return function(element) {
-    if (element.name===planet) {
+    if (element.name===planetName) {
         logger.info('swapi.findPlanet',element)
 
         return element;
@@ -11,45 +13,57 @@ var findPlanet= function (planet) {
 }
 }
 
-exports.getAppearances=(planet,callback) => {
-    const param={search:planet}
-    const traceid=logger.trace()
 
-    request.get(
-        {
-        url:'https://swapi.co/api/planets',
-        qs:param,
-        headers:{'Content-Type':'application/json'}
-        },
-        (err,res) => {
-        const json=JSON.parse(res.body)
-        let found=0
-        const zero=0
-
-        found=json.results.find((element) => {
-            if (element.name===planet) {
-                logger.info(traceid,'swapi.getAppearances - found planet',planet)
-
-                return element;
-            }
-        })
-        if (found===undefined) {
-            logger.info(traceid,'swapi.getAppearances - planet not found',planet)
-
-            return callback(err,zero);
-        }
-        logger.info(traceid,'swapi.getAppearances - found appearances',found.films.length)
-        callback(err,found.films.length)
+var SwapiCache = function (cachekey) {
+    this.cachekey=cachekey;
+    this.get=function() {
+        return mainCache.get(this.cachekey)
+    };
+    this.set=function(value) {
+        return mainCache.set(this.cachekey,value)
     }
-    )
 }
 
+exports.getAppearances=(planetName,callback) => {
+    const traceid=logger.trace()
+    const zero=0
+
+    cache=new SwapiCache(`appearances-${planetName}`)
+
+    if (cache.get()) {
+        logger.info(traceid,'swapi.getAppearances - found in cache',planetName)
+
+        return callback(null,cache.get())
+    }
+
+    exports.Planet.getByName(planetName,(err,res) => {
+        if (err) {
+            logger.error(traceid,'swapi.getAppearances',err)
+
+            return callback(err,null);
+        }
+        if (res===undefined) {
+            logger.info(traceid,'swapi.getAppearances - not-found',planetName)
+            cache.set(zero)
+
+            return callback(null,zero);
+        }
+        logger.info(traceid,'swapi.getAppearances - found appearances',res.films.length)
+        cache.set(res.films.length)
+        callback(null,res.films.length)
+    })
+
+    }
+
+
+
 exports.Planet={}
+exports.Movie={}
 
 
 
-exports.Planet.getByName = (planet,callback) => {
-    const param={search:planet}
+exports.Planet.getByName = (planetName,callback) => {
+    const param={search:planetName}
     const traceid=logger.trace()
 
     request.get(
@@ -63,16 +77,41 @@ exports.Planet.getByName = (planet,callback) => {
         return callback(err,null)
     }
     const json=JSON.parse(res.body)
-    const found=json.results.find(findPlanet(planet))
+    const found=json.results.find(findPlanet(planetName))
 
     if (found===undefined) {
-            logger.info(traceid,'swapi.planet.getByName - planet not found',planet)
-
-            return callback(new Error('Planet not found'),null);
+        logger.info(traceid,'swapi.planet.getByName - planet not found',planetName)
     }
     logger.info(traceid,'swapi.planet.getByName - planet found',found)
 
     return callback(null,found)
+    }
+)
+}
+
+
+
+
+exports.Movie.getByUrl = (urlMovie,callback) => {
+    const traceid = logger.trace()
+
+    request.get(
+    {
+    url:urlMovie,
+    headers:{'Content-Type':'application/json'}
+    },
+    (err,res) => {
+    if (err) {
+        return callback(err,null)
+    }
+    const movie=JSON.parse(res.body)
+
+    if (movie===undefined) {
+        logger.info(traceid,'swapi.movie.getByUrl - movie not found',urlMovie)
+    }
+    logger.info(traceid,'swapi.movie.getByUrl- movie found',movie)
+
+    return callback(null,movie)
     }
 )
 }
