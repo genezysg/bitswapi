@@ -23,13 +23,26 @@ describe('SwapiClient',() => {
 
 
 
-    describe('When try to get from ooince planet(non-existent)', () => {
+    describe('When try to get appearances from ooince planet(non-existent)', () => {
         it(`should return ${zero} appearances`,(done) => {
             swapi.getAppearances('ooince',(err,res) => {
                 if (err) {
                     expect.fail(err)
                 }
                 expect(res).to.equal(zero)
+                done()
+            })
+        })
+    })
+
+
+    describe('When try to get a planet', () => {
+        it('should return a planet',(done) => {
+            swapi.Planet.getByName('Alderaan',(err,res) => {
+                if (err) {
+                    expect.fail(null,err,err)
+                }
+                expect(res).to.deep.include({name:'Alderaan'})
                 done()
             })
         })
