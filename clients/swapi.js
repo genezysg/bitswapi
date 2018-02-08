@@ -13,6 +13,18 @@ var findPlanet= function (planetName) {
 }
 }
 
+var findMovie = function (element) {
+        exports.Movie.getByUrl(element, (err,film) => {
+            if (err) {
+                logger.error(`findMovie - get ${element} is impossible`,err)
+            }
+            logger.info(`findMovie -  ${film} is found`)
+
+            return film
+        })
+    }
+
+
 
 var SwapiCache = function (cachekey) {
     this.cachekey=cachekey;
@@ -24,11 +36,14 @@ var SwapiCache = function (cachekey) {
     }
 }
 
+
+
+
 exports.getAppearances=(planetName,callback) => {
     const traceid=logger.trace()
     const zero=0
 
-    cache=new SwapiCache(`appearances-${planetName}`)
+    var cache=new SwapiCache(`appearances-${planetName}`)
 
     if (cache.get()) {
         logger.info(traceid,'swapi.getAppearances - found in cache',planetName)
@@ -66,6 +81,14 @@ exports.Planet.getByName = (planetName,callback) => {
     const param={search:planetName}
     const traceid=logger.trace()
 
+    var cache=new SwapiCache(`planet-${planetName}`)
+
+    if (cache.get()) {
+        logger.info(traceid,'swapi.getPlanetByName - found in cache',planetName)
+
+        return callback(null,cache.get())
+    }
+
     request.get(
     {
     url:'https://swapi.co/api/planets',
@@ -83,6 +106,7 @@ exports.Planet.getByName = (planetName,callback) => {
         logger.info(traceid,'swapi.planet.getByName - planet not found',planetName)
     }
     logger.info(traceid,'swapi.planet.getByName - planet found',found)
+    cache.set(found)
 
     return callback(null,found)
     }
@@ -91,9 +115,44 @@ exports.Planet.getByName = (planetName,callback) => {
 
 
 
+exports.Planet.getMovies = (planetName,callback) => {
+    var cache = new SwapiCache(`planet.getMovies/${planetName}`)
+
+    if (cache.get()) {
+        return callback(null,cache.get())
+    }
+
+    exports.Planet.getByName(planetName,(err,planet) => {
+        var movies = []
+
+        if (err) {
+        return callback(err,null)
+        }
+        if (planet !== undefined) {
+            movies = planet.films.map(findMovie)
+            cache.set(movies)
+            logger.info(movies,'Planet.GetMovies found')
+
+            return callback(null,movies);
+        }
+    })
+}
+
+
+
+
+
 
 exports.Movie.getByUrl = (urlMovie,callback) => {
     const traceid = logger.trace()
+
+    var cache=new SwapiCache(`movieurl-${urlMovie}`)
+
+    if (cache.get()) {
+        logger.info(traceid,'swapi.getMovieByUrl - found in cache',urlMovie)
+
+        return callback(null,cache.get())
+    }
 
     request.get(
     {
@@ -110,6 +169,7 @@ exports.Movie.getByUrl = (urlMovie,callback) => {
         logger.info(traceid,'swapi.movie.getByUrl - movie not found',urlMovie)
     }
     logger.info(traceid,'swapi.movie.getByUrl- movie found',movie)
+    cache.set(movie)
 
     return callback(null,movie)
     }
