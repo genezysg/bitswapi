@@ -9,8 +9,43 @@ describe('SwapiClient',() => {
     const appear=2
     const zero=0
 
+
+    describe('When try to get all movies await version ', function () {
+    this.timeout(3000)
+        it.only('should return the movie A New Hope',(done) => {
+            var test = null;
+
+            test = async function () {
+                movies = await swapi.Planet.getMovies('Tatooine')
+                console.log(movies)
+                expect(movies).to.deep.include('A New Hope')
+                done()
+
+            }
+            test()
+        })
+    })
+
+    describe('When try to get all movies await version ', function () {
+    this.timeout(3000)
+        it.only('should return the movie A New Hope',(done) => {
+            var test = null;
+
+            test = async function () {
+                movies = await swapi.Planet.getMovies('Taooine')
+                console.log(movies)
+                expect(movies).to.deep.include('A New Hope')
+                done()
+
+            }
+            test()
+        })
+    })
+
+
+
     describe('When try to get appearences from Alderaan', function() {
-        it(`should return ${appear} appearances`,(done) => {
+        it.only(`should return ${appear} appearances`,(done) => {
             swapi.getAppearances('Alderaan',(err,res) => {
                 if (err) {
                     expect.fail(err)
@@ -49,7 +84,6 @@ describe('SwapiClient',() => {
     })
 
 
-
     describe('When try to get movie from url ', () => {
         const urlmovie='https://swapi.co/api/films/1'
 
@@ -57,12 +91,34 @@ describe('SwapiClient',() => {
             swapi.Movie.getByUrl(urlmovie,(err,res) => {
                 if (err) {
                     expect.fail(err)
+                    done()
                 }
                 expect(res).to.deep.include({title:'A New Hope'})
                 done()
             })
         })
     })
+
+
+    describe('When try to get movie from url await version ', () => {
+        const urlmovie='https://swapi.co/api/films/1'
+
+        it('should return the movie A New Hope',(done) => {
+            var test = async function () {
+
+                await swapi.Movie.getByUrl(urlmovie,(err,movie) =>{
+                    expect(movie).to.deep.include({title:'A New Hope'})
+                    done()
+                })
+            }
+            test()
+        })
+    })
+
+
+
+
+
 
 
     describe('When try to get a planet', () => {
@@ -76,5 +132,8 @@ describe('SwapiClient',() => {
             })
         })
     })
+
+
+
 
 })

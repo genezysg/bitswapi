@@ -1,7 +1,8 @@
 const request = require('request')
 const logger = require('../logger')
 const NodeCache = require('node-cache')
-const mainCache = new NodeCache({stdTTL:600});
+const mainCache = new NodeCache({stdTTL:60000});
+
 
 var findPlanet= function (planetName) {
     return function(element) {
@@ -12,17 +13,6 @@ var findPlanet= function (planetName) {
     }
 }
 }
-
-var findMovie = function (element) {
-        exports.Movie.getByUrl(element, (err,film) => {
-            if (err) {
-                logger.error(`findMovie - get ${element} is impossible`,err)
-            }
-            logger.info(`findMovie -  ${film} is found`)
-
-            return film
-        })
-    }
 
 
 
@@ -35,8 +25,6 @@ var SwapiCache = function (cachekey) {
         return mainCache.set(this.cachekey,value)
     }
 }
-
-
 
 
 exports.getAppearances=(planetName,callback) => {
@@ -77,7 +65,7 @@ exports.Movie={}
 
 
 
-exports.Planet.getByName = (planetName,callback) => {
+exports.Planet.getByName = async (planetName,callback) => {
     const param={search:planetName}
     const traceid=logger.trace()
 
@@ -113,29 +101,47 @@ exports.Planet.getByName = (planetName,callback) => {
 )
 }
 
+const getPlanet=function(planet) {
+    return new Promise((resolve,reject) => {
+    exports.Planet.getByName(planet,(err,planetFound) => {
+        if (err) {
+            reject(err)
+        }
+        resolve(planetFound)
+    })
+    })
+}
+
+const getMovie=function(movieurl) {
+    return new Promise((resolve,reject) => {
+    exports.Movie.getByUrl(movieurl,(err,movieFound) => {
+        if (err) {
+            reject(err)
+        }
+        resolve(movieFound.title)
+    })
+    })
+}
 
 
-exports.Planet.getMovies = (planetName,callback) => {
+exports.Planet.getMovies = async (planetName) => {
     var cache = new SwapiCache(`planet.getMovies/${planetName}`)
+    var movies=[]
+    var promises=[]
 
     if (cache.get()) {
-        return callback(null,cache.get())
+        return cache.get()
     }
 
-    exports.Planet.getByName(planetName,(err,planet) => {
-        var movies = []
+    planet=await getPlanet(planetName)
+    for (let ind=0; ind<planet.films.length; ind++) {
+        promises.push(getMovie(planet.films[ind]))
+    }
 
-        if (err) {
-        return callback(err,null)
-        }
-        if (planet !== undefined) {
-            movies = planet.films.map(findMovie)
-            cache.set(movies)
-            logger.info(movies,'Planet.GetMovies found')
+    movies=await Promise.all(promises)
+    cache.set(movies)
 
-            return callback(null,movies);
-        }
-    })
+    return movies;
 }
 
 
@@ -143,7 +149,9 @@ exports.Planet.getMovies = (planetName,callback) => {
 
 
 
-exports.Movie.getByUrl = (urlMovie,callback) => {
+
+
+exports.Movie.getByUrl = async (urlMovie,callback) => {
     const traceid = logger.trace()
 
     var cache=new SwapiCache(`movieurl-${urlMovie}`)
@@ -168,10 +176,11 @@ exports.Movie.getByUrl = (urlMovie,callback) => {
     if (movie===undefined) {
         logger.info(traceid,'swapi.movie.getByUrl - movie not found',urlMovie)
     }
-    logger.info(traceid,'swapi.movie.getByUrl- movie found',movie)
+        logger.info(traceid,'swapi.movie.getByUrl- movie found',movie)
     cache.set(movie)
 
-    return callback(null,movie)
+    return  callback(null,movie)
+
     }
 )
 }
