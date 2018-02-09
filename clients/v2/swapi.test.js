@@ -1,11 +1,11 @@
 process.env.NODE_ENV = 'test';
 
 const expect = require('chai').expect;
-const swapi=require('./swapi')
+const Swapi=require('./swapi')
 
 
 
-describe('SwapiClient',() => {
+describe('SwapiClientV2',() => {
     const appear=2
     const zero=0
 
@@ -43,16 +43,13 @@ describe('SwapiClient',() => {
     })
 
 
-
     describe('When try to get appearences from Alderaan', function() {
-        it(`should return ${appear} appearances`,(done) => {
-            swapi.getAppearances('Alderaan',(err,res) => {
-                if (err) {
-                    expect.fail(err)
-                }
-                expect(res).to.equal(appear)
-                done()
+        it.only(`should return ${appear} appearances`,(done) => {
+            Swapi.Client.totalAppearances('Alderaan').then((appearances) => {
+                    expect(appearances).to.equal(2)
+                    done()
             })
+            .catch((err) => expect.fail(null,err,err))
         })
     })
 
@@ -72,7 +69,7 @@ describe('SwapiClient',() => {
 
 
     describe('When try to get appearances from ooince planet(non-existent)', () => {
-        it(`should return ${zero} appearances`,(done) => {
+        it.only(`should return ${zero} appearances`,(done) => {
             swapi.getAppearances('ooince',(err,res) => {
                 if (err) {
                     expect.fail(err)
@@ -122,18 +119,62 @@ describe('SwapiClient',() => {
 
 
     describe('When try to get a planet', () => {
-        it('should return a planet',(done) => {
-            swapi.Planet.getByName('Alderaan',(err,res) => {
-                if (err) {
+        it.only('should return a planet',(done) => {
+
+                Swapi.Client.planetByName('Alderaan').then((res) => {
+                    expect(res).to.deep.include({name:'Alderaan'})
+                    done()
+                })
+                .catch((err) => {
                     expect.fail(null,err,err)
-                }
-                expect(res).to.deep.include({name:'Alderaan'})
-                done()
-            })
+                    done()
+                })
+        })
+    })
+
+    describe('When try to get a planet that doesnt exist', () => {
+        it.only('should return a error',(done) => {
+
+                Swapi.Client.planetByName('ad').then((res) => {
+                    expect.fail(res)
+                    done()
+                })
+                .catch((err) => {
+                    expect(err.message).to.equal('NOTFOUND')
+                    done()
+                })
         })
     })
 
 
+
+        describe('When try to get a planet', () => {
+            it.only('should return a planet',(done) => {
+
+                    Swapi.Client.planetByName('Alderaan').then((res) => {
+                        expect(res).to.deep.include({name:'Alderaan'})
+                        done()
+                    })
+                    .catch((err) => {
+                        expect.fail(null,err,err)
+                        done()
+                    })
+            })
+        })
+
+        describe('When try to get a planet that doesnt exist', () => {
+            it.only('should return a error',(done) => {
+
+                    Swapi.Client.planetByName('ad').then((res) => {
+                        expect.fail(res)
+                        done()
+                    })
+                    .catch((err) => {
+                        expect(err.message).to.equal('NOTFOUND')
+                        done()
+                    })
+            })
+        })
 
 
 })
