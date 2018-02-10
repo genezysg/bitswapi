@@ -25,8 +25,9 @@ const NOTFOUND='NOTFOUND'
 
 exports.Client = class SwapiClient {
 
-    static request() {
-        return axios.create({
+
+    constructor() {
+        this.axios=axios.create({
                                 baseURL:'https://swapi.co/',
                                 headers: {'Content-Type': 'application/json'},
                                 responseType: 'json'
@@ -34,7 +35,7 @@ exports.Client = class SwapiClient {
     }
 
 
-    static planetByName (planetName) {
+    planetByName (planetName) {
         return new Promise((resolve,reject) => {
         var search={search:planetName}
         const cache=new SwapiCache(`planets/${planetName}`)
@@ -46,7 +47,7 @@ exports.Client = class SwapiClient {
             return resolve(cachedValue)
         }
 
-        SwapiClient.request().get('api/planets',{params:search})
+        this.axios.get('api/planets',{params:search})
             .then((res) => {
                 var planet = res.data.results.find((element) => {
                         if (element.name===planetName) {
@@ -72,14 +73,59 @@ exports.Client = class SwapiClient {
         })
     }
 
-    static totalAppearances(planetName) {
-        return new Promise((resolve) => {
-            SwapiClient.planetByName(planetName)
+    totalAppearances(planetName) {
+        return new Promise((resolve,reject) => {
+            this.planetByName(planetName)
             .then((planet) => {
                  resolve(planet.films.length)
             })
+            .catch(() => {
+                resolve(0)
+            })
         })
-
     }
 
+
+    movieByURL(url) {
+        return new Promise((resolve,reject) => {
+            const cache=new SwapiCache(`movies/${url}`)
+            const cachedValue=cache.get()
+
+            if (cachedValue===NOTFOUND) {
+                return reject(new Error(NOTFOUND))
+            } else if (cachedValue) {
+                return resolve(cachedValue)
+            }
+
+            this.axios.get(url).then((res) => {
+                cache.set(res.data.title)
+                resolve(res.data.title)
+            })  
+            .catch((err) => {
+                if (err.response.status===statuscode.NOT_FOUND) {
+                    cache.set(NOTFOUND)
+                    reject(new Error(NOTFOUND))
+                } else {
+                    reject(err)
+                }
+            })
+
+        })
+    }
+
+    moviesByPlanet(planetName) {
+        return new Promise((resolve,reject) => {
+            var promises=[]
+
+            this.planetByName(planetName).then((planet) => {
+
+                for(var ind=0; ind<planet.films.length; ind++) {
+                        promises.push(this.movieByURL(planet.films[ind]))
+                    }
+                 resolve(Promise.all(promises)) 
+            })
+        })
+                  
+    }
+        
 }

@@ -3,7 +3,9 @@ process.env.NODE_ENV = 'test';
 const expect = require('chai').expect;
 const Swapi=require('./swapi')
 
+const swapiClient=new Swapi.Client()
 
+var testData;
 
 describe('SwapiClientV2',() => {
     const appear=2
@@ -26,27 +28,55 @@ describe('SwapiClientV2',() => {
         })
     })
 
-    describe('When try to get all movies await version ', function () {
-    this.timeout(3000)
-        it('should return the movie A New Hope',(done) => {
-            var test = null;
+    testData={
+        planet:'Tatooine',
+        expected: [ 'Attack of the Clones',
+  'The Phantom Menace',
+  'Revenge of the Sith',
+  'Return of the Jedi',
+  'A New Hope' ]
+    }
+    describe(`When try to get all movies from a planet ${testData.planet}`, function () {
+    this.timeout(5000)
+        it.only(`should return the movie ${testData.expected}`,(done) => {
+            swapiClient.moviesByPlanet(testData.planet).then((movies) => {
+                    expect(movies).to.deep.equal(testData.expected)
 
-            test = async function () {
-                movies = await swapi.Planet.getMovies('Taooine')
-                console.log(movies)
-                expect(movies).to.deep.include('A New Hope')
-                done()
+                    done()
+            })
+            .catch((err) => console.log(err))
+                
+        })
+    })
 
-            }
-            test()
+    describe(`When try to get all movies from a planet ${testData.planet}`, function () {
+    this.timeout(5)
+        it.only(`should return the movie ${testData.expected}`,(done) => {
+            swapiClient.moviesByPlanet(testData.planet).then((movies) => {
+                    expect(movies).to.deep.equal(testData.expected)
+
+                    done()
+            })
+            .catch((err) => console.log(err))
+                
         })
     })
 
 
     describe('When try to get appearences from Alderaan', function() {
         it.only(`should return ${appear} appearances`,(done) => {
-            Swapi.Client.totalAppearances('Alderaan').then((appearances) => {
+            swapiClient.totalAppearances('Alderaan').then((appearances) => {
                     expect(appearances).to.equal(2)
+                    done()
+            })
+            .catch((err) => expect.fail(null,err,err))
+        })
+    })
+
+        describe('When try to get appearences from non-existent planet', function() {
+        it.only(`should return zero appearances`,(done) => {
+            swapiClient.totalAppearances('ad').then((appearances) => {
+                    expect(appearances).to.equal(0)
                     done()
             })
             .catch((err) => expect.fail(null,err,err))
@@ -68,17 +98,7 @@ describe('SwapiClientV2',() => {
     })
 
 
-    describe('When try to get appearances from ooince planet(non-existent)', () => {
-        it.only(`should return ${zero} appearances`,(done) => {
-            swapi.getAppearances('ooince',(err,res) => {
-                if (err) {
-                    expect.fail(err)
-                }
-                expect(res).to.equal(zero)
-                done()
-            })
-        })
-    })
+
 
 
     describe('When try to get movie from url ', () => {
@@ -90,25 +110,26 @@ describe('SwapiClientV2',() => {
                     expect.fail(err)
                     done()
                 }
-                expect(res).to.deep.include({title:'A New Hope'})
+                expect(res).to.deep.include('A New Hope')
                 done()
             })
         })
     })
 
 
-    describe('When try to get movie from url await version ', () => {
-        const urlmovie='https://swapi.co/api/films/1'
+    describe('When try to get movie from url ', () => {
+        it.only('should return a movie',(done) => {
+                const urlmovie='https://swapi.co/api/films/1'
 
-        it('should return the movie A New Hope',(done) => {
-            var test = async function () {
-
-                await swapi.Movie.getByUrl(urlmovie,(err,movie) =>{
-                    expect(movie).to.deep.include({title:'A New Hope'})
+                  swapiClient.movieByURL(urlmovie).then((movie) => {
+                    expect(movie).to.equal('A New Hope')
                     done()
                 })
-            }
-            test()
+                .catch((err) => {
+                    console.log(err)
+                    expect.fail(null,err,err)
+                    done()
+                })
         })
     })
 
@@ -121,7 +142,7 @@ describe('SwapiClientV2',() => {
     describe('When try to get a planet', () => {
         it.only('should return a planet',(done) => {
 
-                Swapi.Client.planetByName('Alderaan').then((res) => {
+                swapiClient.planetByName('Alderaan').then((res) => {
                     expect(res).to.deep.include({name:'Alderaan'})
                     done()
                 })
@@ -135,7 +156,7 @@ describe('SwapiClientV2',() => {
     describe('When try to get a planet that doesnt exist', () => {
         it.only('should return a error',(done) => {
 
-                Swapi.Client.planetByName('ad').then((res) => {
+                swapiClient.planetByName('ad').then((res) => {
                     expect.fail(res)
                     done()
                 })
@@ -151,7 +172,7 @@ describe('SwapiClientV2',() => {
         describe('When try to get a planet', () => {
             it.only('should return a planet',(done) => {
 
-                    Swapi.Client.planetByName('Alderaan').then((res) => {
+                    swapiClient.planetByName('Alderaan').then((res) => {
                         expect(res).to.deep.include({name:'Alderaan'})
                         done()
                     })
@@ -164,8 +185,7 @@ describe('SwapiClientV2',() => {
 
         describe('When try to get a planet that doesnt exist', () => {
             it.only('should return a error',(done) => {
-
-                    Swapi.Client.planetByName('ad').then((res) => {
+                    swapiClient.planetByName('ad').then((res) => {
                         expect.fail(res)
                         done()
                     })
