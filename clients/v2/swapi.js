@@ -1,5 +1,4 @@
 const axios = require('axios')
-const logger = require('../../logger')
 const NodeCache = require('node-cache')
 const mainCache = new NodeCache({stdTTL:60000});
 const statuscode= require('http-status-codes')
@@ -58,8 +57,8 @@ exports.Client = class SwapiClient {
                     cache.set(NOTFOUND)
                     reject(new Error(NOTFOUND))
                 } else {
-                cache.set(planet)
-                resolve(planet)
+                    cache.set(planet)
+                    resolve(planet)
                 }
             })
             .catch((err) => {
@@ -74,14 +73,12 @@ exports.Client = class SwapiClient {
     }
 
     totalAppearances(planetName) {
-        return new Promise((resolve,reject) => {
+        var zero = 0
+
+        return new Promise((resolve) => {
             this.planetByName(planetName)
-            .then((planet) => {
-                 resolve(planet.films.length)
-            })
-            .catch(() => {
-                resolve(0)
-            })
+            .then((planet) => resolve(planet.films.length))
+            .catch(() => resolve(zero))
         })
     }
 
@@ -100,7 +97,7 @@ exports.Client = class SwapiClient {
             this.axios.get(url).then((res) => {
                 cache.set(res.data.title)
                 resolve(res.data.title)
-            })  
+            })
             .catch((err) => {
                 if (err.response.status===statuscode.NOT_FOUND) {
                     cache.set(NOTFOUND)
@@ -114,18 +111,15 @@ exports.Client = class SwapiClient {
     }
 
     moviesByPlanet(planetName) {
-        return new Promise((resolve,reject) => {
+        return new Promise((resolve) => {
             var promises=[]
 
             this.planetByName(planetName).then((planet) => {
-
-                for(var ind=0; ind<planet.films.length; ind++) {
-                        promises.push(this.movieByURL(planet.films[ind]))
-                    }
-                 resolve(Promise.all(promises)) 
+                promises=planet.films.map((element) => this.movieByURL(element))
+                 resolve(Promise.all(promises))
             })
         })
-                  
+
     }
-        
+
 }
