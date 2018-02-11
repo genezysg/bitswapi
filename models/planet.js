@@ -10,7 +10,8 @@ var planetSchema = new mongoose.Schema({
   movieAppearances: {
                      type:Number,
                      default:0
-                    }
+                 },
+  movies:[String]
 });
 
 
@@ -20,19 +21,18 @@ planetSchema.methods.getAppearances=function () {
     var tid = logger.trace()
 
     logger.info(tid,'change movieAppearance of planet',that.name)
-
-    swapi.getAppearances(that.name,(err,appearances) => {
-        if (err) {
-            logger.error(tid,'Cant get appearances of a planet',err,that.name)
-
-            return;
-        }
-        if (that.movieAppearances !== appearances) {
-            logger.info(tid,'Movie appearances found and changed','before',that.movieAppearances,'new',appearances)
-            that.movieAppearances=appearances
+    swClient=new swapi.Client()
+    swClient.totalAppearances(that.name).then((total) => {
+        if (that.movieAppearances === total) {
+            logger.info(tid,'Not saved')
+        } else {
+            logger.info(tid,'Movie appearances found and changed','before',that.movieAppearances,'new',total)
+            that.movieAppearances=total
             that.save()
         }
-        logger.info(tid,'Not saved')
+    })
+    .catch(() => {
+        logger.info(tid,'Movie appearances has returned zero')
     })
 }
 
