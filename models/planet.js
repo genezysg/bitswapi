@@ -1,10 +1,14 @@
 const mongoose=require('mongoose');
 const swapi=require('../clients/swapi')
 const logger=require('../logger')
+const assert=require('assert')
 
 var planetSchema = new mongoose.Schema({
   climate: String,
-  name:  String,
+  name:  {
+            type:String,
+            unique:true
+         },
   terrain: String,
   updateAt: Date,
   movieAppearances: {
@@ -36,4 +40,13 @@ planetSchema.methods.getAppearances=function () {
     })
 }
 
-module.exports = mongoose.model('Planet',planetSchema)
+
+PlanetModel = mongoose.model('Planet',planetSchema)
+
+PlanetModel.init().then((err) => {
+    assert.ifError(err);
+    logger.info('Indexed PlanetModel')
+})
+
+
+module.exports = PlanetModel

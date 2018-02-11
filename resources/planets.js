@@ -36,13 +36,7 @@ exports.get = (req,res,next) => {
     logger.info(traceid,'resources/planets.get -find',req.params.id)
     query=Planet.findById(req.params.id)
     query.exec((err,planets) => {
-        if (err) {
-            handleError(err,res)
-            logger.error(traceid,'resources/planets.get',err)
-
-            return next()
-        }
-        if (planets===null) {
+        if (err || planets===null) {
             res.send(statuscode.NOT_FOUND)
             logger.info(traceid,'resources/planets.get -not found',req.params.id)
 
@@ -59,22 +53,22 @@ exports.get = (req,res,next) => {
 
 exports.post = (req,res,next) => {
     const traceid=logger.trace();
-    const np = new Planet(req.body);
+        const np = new Planet(req.body);
+        logger.info(traceid,'resources/planets.post - body',req.body)
+            np.save((errsave,saved) => {
+                if (errsave) {
+                    res.send(statuscode.UNPROCESSABLE_ENTITY,'Already Exists')
+                    logger.debug(traceid,'resources/planets.post',errsave)
 
-    logger.info(traceid,'resources/planets.post - body',req.body)
-        np.save((err,saved) => {
-            if (err) {
-                handleError(err,res)
-                logger.error(traceid,'resources/planets.post',err)
+                    return next();
+                }
+                saved.getAppearances()
+                logger.info(traceid,'resources/planets.post - saved',saved)
+                res.send(statuscode.CREATED,saved)
+                next()
+            })
+    }
 
-                return next();
-            }
-            saved.getAppearances()
-            logger.info(traceid,'resources/planets.post - saved',saved)
-            res.send(statuscode.CREATED,saved)
-            next()
-        })
-}
 
 exports.update = (req,res,next) => {
     const traceid=logger.trace();
@@ -82,15 +76,15 @@ exports.update = (req,res,next) => {
     logger.info(traceid,'resources/planets.update - id',req.params.id,req.body)
         Planet.findById(req.params.id,(err,planet) => {
             if (err) {
-                handleError(err,res)
+                res.send(statuscode.NOT_FOUND,'Not Found')
 
                 return next();
             }
             planet.set(req.body)
             planet.save((errup,updatedPlanet) => {
                 if (errup) {
-                    handleError(err,res)
-                    logger.error(traceid,'resources/planets.updated',err)
+                    res.send(statuscode.UNPROCESSABLE_ENTITY,'Planet Already Exists')
+                    logger.debug(traceid,'resources/planets.updated',err)
 
                     return next();
                 }

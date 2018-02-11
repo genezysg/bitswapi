@@ -11,6 +11,16 @@ const Planet = require('../models/planet.js')
 
 chai.use(chaiHttp)
 
+before(function (done) {
+    this.timeout(10000)
+
+    Planet.remove({},(err,success) => {
+        console.log("Erro",err)
+        console.log("Sucesso",success)
+        done()
+    })
+})
+
 describe('Planets API', () => {
 
     it('should return a list of planets in a json format',(done) => {
@@ -26,7 +36,7 @@ describe('Planets API', () => {
         })
     })
 
-
+describe('#post', function () {
     it('should insert a new planet',(done) => {
         chai.request(server).post('/planets')
         .send({
@@ -34,18 +44,36 @@ describe('Planets API', () => {
             climate:'desert',
             terrain:'mountais'
         })
-        .then((res) => {
+        .end((err,res) => {
+            console.log(err)
             expect(res).to.have.status(statuscode.CREATED);
             expect(res.body).to.deep.include({name:'Alderaan'})
-            done()
-        })
-        .catch((err) => {
-            expect.fail(err)
             done()
         })
     })
 
 
+    it('should not insert an existing  planet with the same name',(done) => {
+        new Planet({
+            name:'Kamino',
+            climate:'chuvoso',
+            terrain:'terrenoseco'
+        }).save()
+        .then(() => {
+            chai.request(server).post('/planets')
+            .send({
+                name:'Kamino',
+                climate:'desert',
+                terrain:'mountais'
+            })
+            .end((err,res) => {
+                expect(err).to.have.status(statuscode.UNPROCESSABLE_ENTITY);
+                expect(res.body).to.equal('Already Exists')
+                done()
+            })
+        })
+    })
+})
 
 describe('#get - when an id is sent via url',() => {
         it('should return a planet by id',(done) => {
@@ -68,10 +96,23 @@ describe('#get - when an id is sent via url',() => {
 })
 
 
+describe('#get - when an inexistent id is sent',() => {
+        it('should return 404',(done) => {
+            chai.request(server).get(`/planets/noplanet`)
+            .end((err,res) => {
+                expect(err.message).to.equal('Not Found')
+                expect(res).to.have.status(statuscode.NOT_FOUND);
+                done()
+                })
+
+        })
+})
+
+
 describe('#put' ,() => {
     it('should update a planet',(done) => {
         new Planet({
-            name:'Tatooine',
+            name:'Geonosis',
             climate:'chuvoso',
             terrain:'terrenoseco'
         }).save()
@@ -92,6 +133,42 @@ describe('#put' ,() => {
                     })
             })
      })
+
+
+     it('should not update a non-existent planet',(done) => {
+
+         chai.request(server).put('/planets/34234')
+         .send({
+             name:'Tatooiney',
+             terrain:'mountais'
+         })
+         .end((err) => {
+             expect(err).to.have.status(statuscode.NOT_FOUND)
+             done()
+         })
+
+      })
+
+
+     it('should not update a planet with an already existent name',(done) => {
+         new Planet({
+             name:'Mirial',
+             climate:'chuvoso',
+             terrain:'terrenoseco'
+         }).save()
+         .then((planet) => {
+                     chai.request(server).put(`/planets/${planet.id}`)
+                     .send({
+                         name:'Alderaan',
+                         terrain:'mountais'
+                     })
+                     .end((err,res) => {
+                         expect(err).to.have.status(statuscode.UNPROCESSABLE_ENTITY)
+                         expect(res.body).to.equal('Planet Already Exists')
+                         done()
+                     })
+             })
+      })
 })
 
 
@@ -99,7 +176,7 @@ describe('#put' ,() => {
 
         it('should delete the planet',(done) => {
             new Planet({
-                name:'Tatooine',
+                name:'Utapau',
                 climate:'chuvoso',
                 terrain:'terrenoseco'
             }).save()
