@@ -6,7 +6,8 @@ module.exports = {
     },
     "extends": "eslint:recommended",
     "parserOptions": {
-        "sourceType": "module"
+        "sourceType": "module",
+        "ecmaVersion": 2017
     },
     "rules": {
         "accessor-pairs": "error",
@@ -83,10 +84,7 @@ module.exports = {
         "multiline-ternary": "error",
         "new-cap": "error",
         "new-parens": "error",
-        "newline-after-var": [
-            "error",
-            "always"
-        ],
+        "newline-after-var": 'off',
         "newline-before-return": "error",
         "newline-per-chained-call": "error",
         "no-alert": "error",
