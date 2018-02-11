@@ -1,10 +1,9 @@
 const logger = require('./logger')
 var restify = require('restify');
 var config = require('config');
-var mongoose = require('mongoose')
+const mongoose=require('./mongoose/connect')
 var planetResource = require('./resources/planets')
 
-mongoose.connect(`mongodb://localhost/${config.db}`);
 
 
 const server = restify.createServer({
@@ -20,7 +19,7 @@ server.use(restify.plugins.bodyParser());
 server.get('/planets/',planetResource.list);
 server.get('/planets/:id',planetResource.get);
 server.post('/planets/',planetResource.post);
-server.post('/planets/:id',planetResource.update);
+server.put('/planets/:id',planetResource.update);
 server.del('/planets/:id',planetResource.delete);
 
 

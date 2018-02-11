@@ -1,6 +1,6 @@
 {
 	"port":8001,
-	"db":"test",
+	"mongooseURL":"mongodb://localhost/testedsfbitGNZ",
     "log_level":{
             "file":"debug",
             "console":"error"

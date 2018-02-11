@@ -1,6 +1,6 @@
 {
     "port":8000,
-    "db":"local",
+    "mongooseURL":"mongodb://localhost/dsfbitGNZ",
     "log_level":{
             "file":"info",
             "console":"silly"
