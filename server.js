@@ -1,10 +1,9 @@
 const logger = require('./logger')
 var restify = require('restify');
 var config = require('config');
-var mongoose = require('mongoose')
+const mongoose=require('./mongoose/connect')
 var planetResource = require('./resources/planets')
 
-mongoose.connect(`mongodb://localhost/${config.db}`);
 
 
 const server = restify.createServer({

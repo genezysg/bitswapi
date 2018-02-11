@@ -6,7 +6,7 @@ const expect = chai.expect
 
 const server=require('../server')
 const statuscode=require('http-status-codes')
-const Planet = require('../models/planet.js')
+const Planet = require('../models/planet')
 
 
 chai.use(chaiHttp)

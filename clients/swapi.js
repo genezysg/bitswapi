@@ -122,6 +122,9 @@ exports.Client = class SwapiClient {
                 promises=planet.films.map((element) => this.movieByURL(element))
                  resolve(Promise.all(promises))
             })
+            .catch(() => {
+                resolve([])
+            })
         })
 
     }
