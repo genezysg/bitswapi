@@ -14,27 +14,14 @@ chai.use(chaiHttp)
 before(function (done) {
     this.timeout(10000)
 
-    Planet.remove({},(err,success) => {
-        console.log("Erro",err)
-        console.log("Sucesso",success)
+    Planet.remove({},() => {
         done()
     })
 })
 
 describe('Planets API', () => {
 
-    it('should return a list of planets in a json format',(done) => {
-        chai.request(server).get('/planets')
-        .then((res) => {
-            expect(res).to.have.status(statuscode.OK);
-            expect(res.body).to.be.an('array')
-            done()
-        })
-        .catch((err) => {
-            expect.fail(err)
-            done()
-        })
-    })
+
 
 describe('#post', function () {
     it('should insert a new planet',(done) => {
@@ -75,7 +62,7 @@ describe('#post', function () {
     })
 })
 
-describe('#get - when an id is sent via url',() => {
+describe('#get',() => {
         it('should return a planet by id',(done) => {
         new Planet({
             name:'Tatooine',
@@ -92,6 +79,22 @@ describe('#get - when an id is sent via url',() => {
                         done()
                         })
                     })
+        })
+
+
+        it('should return a list of planets in a json format',(done) => {
+            chai.request(server).get('/planets')
+            .end((err,res) => {
+                expect(err).to.be.an('null')
+                expect(res).to.have.status(statuscode.OK);
+                expect(res.body).to.be.an('array')
+                expect(res.body[2]).to.deep.include({
+                    name:'Tatooine',
+                    climate:'tester',
+                    terrain:'terrenoseco'
+                })
+                done()
+            })
         })
 })
 

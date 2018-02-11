@@ -8,13 +8,8 @@ const handleError= (error,res) => {
 
 exports.list = (req,res,next) => {
     const traceid=logger.trace();
-    var query=null;
+    var query=Planet.find(req.query);
 
-    if (req.params.id) {
-        query=Planet.findById(req.params.id)
-    } else {
-        query=Planet.find(req.query)
-    }
     logger.info(traceid,'resources/planets.list - find',req.query)
     query.exec((err,planets) => {
         if (err) {
