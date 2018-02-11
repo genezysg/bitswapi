@@ -8,24 +8,23 @@ const mongoose=require('../mongoose/connect')
 
 
 
-before(function (done) {
-    this.timeout(10000)
-
-    Planet.remove({},() => {
-        done()
-    })
-})
 
 describe('Model - Planet',function () {
+    before(function (done) {
+        this.timeout(10000)
+        Planet.remove({}, () => done())
+    })
+
     this.timeout(3000)
     it('should update and save appearances of a planet', (done) => {
-        var expValue=2
-        alderaan=new Planet({name:'Alderaan'})
 
-        alderaan.updateAppearances()
+        var expValue=1
+        endor=new Planet({name:'Endor'})
+
+        endor.updateAppearances()
         .then((qt) => {
             expect(qt).to.equal(expValue)
-            expect(alderaan.movieAppearances).to.equal(expValue)
+            expect(endor.movieAppearances).to.equal(expValue)
             done()
         })
         .catch((err) => console.log(err))

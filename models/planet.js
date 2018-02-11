@@ -72,6 +72,10 @@ planetSchema.methods.updateMovies=function () {
 }
 
 
+
+
+
+
 PlanetModel = mongoose.model('Planet',planetSchema)
 
 PlanetModel.init().then((err) => {

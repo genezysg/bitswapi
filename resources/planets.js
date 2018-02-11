@@ -27,7 +27,6 @@ exports.list = (req,res,next) => {
 
 exports.get = (req,res,next) => {
     const traceid=logger.trace();
-
     logger.info(traceid,'resources/planets.get -find',req.params.id)
     query=Planet.findById(req.params.id)
     query.exec((err,planets) => {
@@ -37,13 +36,14 @@ exports.get = (req,res,next) => {
 
             return next()
         }
-            planets.getAppearances()
+            planets.updateAppearances()
+            planets.updateMovies()
             res.send(planets)
             logger.info(traceid,'resources/planets.get -found',planets)
 
-            return next()
+                return next()
+            })
 
-    })
 }
 
 exports.post = (req,res,next) => {
@@ -57,7 +57,6 @@ exports.post = (req,res,next) => {
 
                     return next();
                 }
-                saved.getAppearances()
                 logger.info(traceid,'resources/planets.post - saved',saved)
                 res.send(statuscode.CREATED,saved)
                 next()
@@ -77,13 +76,14 @@ exports.update = (req,res,next) => {
             }
             planet.set(req.body)
             planet.save((errup,updatedPlanet) => {
-                if (errup) {
+                if (errup || updatedPlanet===null) {
                     res.send(statuscode.UNPROCESSABLE_ENTITY,'Planet Already Exists')
                     logger.debug(traceid,'resources/planets.updated',err)
 
                     return next();
                 }
-                updatedPlanet.getAppearances()
+                updatedPlanet.updateAppearances()
+                updatedPlanet.updateMovies()
                 logger.info(traceid,'resources/planets.updated',updatedPlanet)
                 res.send(updatedPlanet)
                 next()

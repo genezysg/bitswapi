@@ -11,19 +11,15 @@ const Planet = require('../models/planet')
 
 chai.use(chaiHttp)
 
-before(function (done) {
-    this.timeout(10000)
 
-    Planet.remove({},() => {
-        done()
-    })
-})
+
 
 describe('Planets API', () => {
 
 
 
 describe('#post', function () {
+
     it('should insert a new planet',(done) => {
         chai.request(server).post('/planets')
         .send({
@@ -32,7 +28,7 @@ describe('#post', function () {
             terrain:'mountais'
         })
         .end((err,res) => {
-            console.log(err)
+            expect(err).to.be.an('null')
             expect(res).to.have.status(statuscode.CREATED);
             expect(res.body).to.deep.include({name:'Alderaan'})
             done()
@@ -65,7 +61,7 @@ describe('#post', function () {
 describe('#get',() => {
         it('should return a planet by id',(done) => {
         new Planet({
-            name:'Tatooine',
+            name:'Dagobah',
             climate:'tester',
             terrain:'terrenoseco'
         }).save()
@@ -75,7 +71,7 @@ describe('#get',() => {
                         expect(err).to.be.an('null')
                         expect(res).to.have.status(statuscode.OK);
                         expect(res.body).to.be.an('object')
-                        expect(res.body).to.deep.include({name:'Tatooine'})
+                        expect(res.body).to.deep.include({name:'Dagobah'})
                         done()
                         })
                     })
@@ -88,11 +84,7 @@ describe('#get',() => {
                 expect(err).to.be.an('null')
                 expect(res).to.have.status(statuscode.OK);
                 expect(res.body).to.be.an('array')
-                expect(res.body[2]).to.deep.include({
-                    name:'Tatooine',
-                    climate:'tester',
-                    terrain:'terrenoseco'
-                })
+                expect(res.body[2]).to.deep.include({name:'Andro'})
                 done()
             })
         })
@@ -142,7 +134,7 @@ describe('#put' ,() => {
 
          chai.request(server).put('/planets/34234')
          .send({
-             name:'Tatooiney',
+             name:'Tatooineya',
              terrain:'mountais'
          })
          .end((err) => {
