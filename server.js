@@ -20,7 +20,7 @@ server.use(restify.plugins.bodyParser());
 server.get('/planets/',planetResource.list);
 server.get('/planets/:id',planetResource.get);
 server.post('/planets/',planetResource.post);
-server.post('/planets/:id',planetResource.update);
+server.put('/planets/:id',planetResource.update);
 server.del('/planets/:id',planetResource.delete);
 
 

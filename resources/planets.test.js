@@ -3,37 +3,10 @@ process.env.NODE_ENV = 'test';
 const chai = require('chai')
 const chaiHttp= require('chai-http')
 const expect = chai.expect
+
 const server=require('../server')
 const statuscode=require('http-status-codes')
 const Planet = require('../models/planet.js')
-
-
-const pln=new Planet({
-                        name:'Alderaan',
-                        climate:'deserto',
-                        terrain:'areia'
-                    })
-const pln2=new Planet({
-                        name:'Tatooine',
-                        climate:'deserto',
-                        terrain:'areia'
-                    })
-
-const createPlanet= (planet) => {
-    var cp = null;
-
-    cp=new Promise((resolve,reject) => {
-        planet.save((err,saved) => {
-            if (err) {
-                reject(err)
-            }
-            resolve(saved.id)
-        })
-    })
-
-    return cp;
-}
-
 
 
 chai.use(chaiHttp)
@@ -52,29 +25,6 @@ describe('Planets API', () => {
             done()
         })
     })
-
-createPlanet(pln).then((planetId) => {
-        describe('#get - when an id is sent via url',() => {
-        it('should return a planet by id',(done) => {
-
-        chai.request(server).get(`/planets/${planetId}`)
-        .then((res) => {
-            expect(res).to.have.status(statuscode.OK);
-            expect(res.body).to.be.an('object')
-            expect(res.body).to.deep.include({name:'Alderaan'})
-            done()
-        })
-        .catch((err) => {
-            expect.fail(err,null,err)
-            done()
-        })
-        })
-    })
-    })
-    .catch((err) => {
-        expect.fail(err,null,err)
-        done()
-})
 
 
     it('should insert a new planet',(done) => {
@@ -97,48 +47,73 @@ createPlanet(pln).then((planetId) => {
 
 
 
-    it('should update a planet',(done) => {
-
-        chai.request(server).post('/planets/5a78be54d5ad6a2846b572fb')
-        .send({
+describe('#get - when an id is sent via url',() => {
+        it('should return a planet by id',(done) => {
+        new Planet({
             name:'Tatooine',
-            climate:'watery',
-            terrain:'mountais'
+            climate:'tester',
+            terrain:'terrenoseco'
+        }).save()
+                .then((planet) => {
+                    chai.request(server).get(`/planets/${planet.id}`)
+                    .end((err,res) => {
+                        expect(err).to.be.an('null')
+                        expect(res).to.have.status(statuscode.OK);
+                        expect(res.body).to.be.an('object')
+                        expect(res.body).to.deep.include({name:'Tatooine'})
+                        done()
+                        })
+                    })
         })
-        .then((res) => {
-            expect(res.body).to.deep.include({
-                climate:'watery',
-                terrain:'mountais'
-            });
-            done()
-        })
-        .catch((err) => {
-            expect.fail(err)
-            done()
-        })
-    })
+})
 
 
+describe('#put' ,() => {
+    it('should update a planet',(done) => {
+        new Planet({
+            name:'Tatooine',
+            climate:'chuvoso',
+            terrain:'terrenoseco'
+        }).save()
+        .then((planet) => {
+                    chai.request(server).put(`/planets/${planet.id}`)
+                    .send({
+                        name:'Tatooiney',
+                        terrain:'mountais'
+                    })
+                    .end((err,res) => {
+                        expect(err).to.be.an('null')
+                        expect(res.body).to.deep.include({
+                            name:'Tatooiney',
+                            climate:'chuvoso',
+                            terrain:'mountais'
+                        })
+                        done()
+                    })
+            })
+     })
+})
 
-    createPlanet(pln2).then((planetId) => {
-            describe('#delete - when an id is sent to be deleted',() => {
-            it('should delete the planet',(done) => {
-                chai.request(server).delete(`/planets/${planetId}`)
-                .then((res) => {
-                    expect(res).to.have.status(statuscode.NO_CONTENT)
-                    done()
-                })
-                .catch((err) => {
-                    expect.fail(err,null,err)
-                    done()
-                })
+
+    describe('#delete - when an id is sent to be deleted',() => {
+
+        it('should delete the planet',(done) => {
+            new Planet({
+                name:'Tatooine',
+                climate:'chuvoso',
+                terrain:'terrenoseco'
+            }).save()
+            .then((planet) => {
+                    chai.request(server).delete(`/planets/${planet.id}`)
+                    .end((err,res) => {
+                        expect(err).to.be.an('null')
+                        expect(res).to.have.status(statuscode.NO_CONTENT)
+                        done()
+                    })
             })
         })
     })
-    .catch((err) => {
-        expect.fail(err,null,err)
-        done()
-    })
+
 
     describe('#delete - when an inexistent id is sent to be deleted', () => {
         it('should return 404 not found',(done) => {
