@@ -106,6 +106,10 @@ exports.Client = class SwapiClient {
                     reject(err)
                 }
             })
+            .catch(() => {
+                cache.set(NOTFOUND)
+                reject(new Error(NOTFOUND))
+            })
 
         })
     }
