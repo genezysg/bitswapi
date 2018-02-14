@@ -33,3 +33,5 @@
     npm run dev - Executa em modo de desenvolvimento (com nodemon)
     npm run test - Executa os testes
     npm run cover - Cria os arquivos de cobertura de teste
+
+## Dúvidas ou sugestões, basta abrir uma [issue](https://github.com/genezysg/dsfbit/issues/new)
